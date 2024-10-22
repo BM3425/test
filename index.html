@@ -1,200 +1,127 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Resume Builder</title>
+import React, { useState } from 'react';
+import { Card, CardContent } from '@/components/ui/card';
 
-    <!-- React and ReactDOM from CDN -->
-    <script src="https://unpkg.com/react@17/umd/react.development.js" crossorigin></script>
-    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js" crossorigin></script>
+const defaultData = {
+  personalInfo: {
+    name: "",
+    email: "",
+    phoneNumber: "",
+    grade: "",
+    unweightedGPA: "",
+    school: "",
+    schoolCity: "",
+    schoolState: ""
+  },
+  professionalExperience: [],
+  volunteerExperience: [],
+  extracurriculars: [],
+  relevantCoursework: [],
+  skills: []
+};
 
-    <!-- Babel for transpiling JSX in the browser -->
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+// Subcomponents
+const ResumeOrganizer = ({ data, setData, setCurrentView }) => {
+  const [activeSection, setActiveSection] = useState('personalInfo');
 
-    <!-- Add some basic styling -->
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        background-color: #f0f4f8;
-        margin: 0;
-        padding: 0;
-      }
-      .container {
-        width: 100%;
-        max-width: 900px;
-        margin: 20px auto;
-        padding: 20px;
-        background-color: white;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        border-radius: 8px;
-      }
-      h1 {
-        color: #333;
-      }
-    </style>
-</head>
-<body>
+  const sections = [
+    { id: 'personalInfo', label: 'Personal Info', icon: '👤' },
+    { id: 'professionalExperience', label: 'Professional Experience', icon: '💼' },
+    { id: 'volunteerExperience', label: 'Volunteer Experience', icon: '🤝' },
+    { id: 'extracurriculars', label: 'Extracurriculars', icon: '🎯' },
+    { id: 'relevantCoursework', label: 'Coursework', icon: '📚' },
+    { id: 'skills', label: 'Skills', icon: '⚡' }
+  ];
 
-  <div id="root" class="container"></div>
+  const handlePersonalInfoChange = (field, value) => {
+    setData(prev => ({ ...prev, personalInfo: { ...prev.personalInfo, [field]: value } }));
+  };
 
-  <!-- React App -->
-  <script type="text/babel">
-    const defaultData = {
-      personalInfo: {
-        name: "",
-        email: "",
-        phoneNumber: "",
-        grade: "",
-        unweightedGPA: "",
-        school: "",
-        schoolCity: "",
-        schoolState: ""
-      },
-      professionalExperience: [],
-      volunteerExperience: [],
-      extracurriculars: [],
-      relevantCoursework: [],
-      skills: []
-    };
+  const handleExperienceChange = (type, index, field, value) => {
+    setData(prev => {
+      const newData = { ...prev };
+      newData[type][index][field] = value;
+      return newData;
+    });
+  };
 
-    const ResumeOrganizer = ({ data, setData, setCurrentView }) => {
-      const [activeSection, setActiveSection] = React.useState('personalInfo');
+  const addExperience = (type) => {
+    setData(prev => ({
+      ...prev,
+      [type]: [...prev[type], { name: '', role: '', city: '', state: '', yearStarted: '', yearEnded: '', description: '' }]
+    }));
+  };
 
-      const sections = [
-        { id: 'personalInfo', label: 'Personal Info', icon: '👤' },
-        { id: 'professionalExperience', label: 'Professional Experience', icon: '💼' },
-        { id: 'volunteerExperience', label: 'Volunteer Experience', icon: '🤝' },
-        { id: 'extracurriculars', label: 'Extracurriculars', icon: '🎯' },
-        { id: 'relevantCoursework', label: 'Coursework', icon: '📚' },
-        { id: 'skills', label: 'Skills', icon: '⚡' }
-      ];
+  const addSkill = (section, skill) => {
+    if (section === 'skills' && skill) {
+      setData(prev => ({
+        ...prev,
+        skills: [...prev.skills, skill]
+      }));
+    }
+  };
 
-      const handlePersonalInfoChange = (field, value) => {
-        setData(prev => ({
-          ...prev,
-          personalInfo: {
-            ...prev.personalInfo,
-            [field]: value
-          }
-        }));
-      };
-
-      const handleExperienceChange = (type, index, field, value) => {
-        setData(prev => {
-          const newData = { ...prev };
-          newData[type][index][field] = value;
-          return newData;
-        });
-      };
-
-      const addExperience = (type) => {
-        setData(prev => ({
-          ...prev,
-          [type]: [...prev[type], {
-            name: '',
-            role: '',
-            city: '',
-            state: '',
-            yearStarted: '',
-            yearEnded: '',
-            description: ''
-          }]
-        }));
-      };
-
-      const addExtracurricular = () => {
-        setData(prev => ({
-          ...prev,
-          extracurriculars: [...prev.extracurriculars, { name: '', description: '' }]
-        }));
-      };
-
-      const addCoursework = () => {
-        setData(prev => ({
-          ...prev,
-          relevantCoursework: [...prev.relevantCoursework, { name: '', description: '' }]
-        }));
-      };
-
-      const addSkill = (section, skill) => {
-        if (section === 'skills' && skill) {
-          setData(prev => ({
-            ...prev,
-            skills: [...prev.skills, { section: 'General', skills: [skill] }]
-          }));
-        }
-      };
-
-      const addSkillSection = () => {
-        setData(prev => ({
-          ...prev,
-          skills: [...prev.skills, { section: `Skill Group ${prev.skills.length + 1}`, skills: [] }]
-        }));
-      };
-
-      return (
-        <div className="flex bg-white rounded-lg shadow-lg">
-          <div className="w-64 border-r border-gray-200 p-6">
-            <nav className="space-y-2">
-              {sections.map(section => (
-                <button
-                  key={section.id}
-                  onClick={() => setActiveSection(section.id)}
-                  className={`flex items-center w-full p-3 rounded-lg ${
-                    activeSection === section.id ? 'bg-blue-50 text-blue-600' : 'hover:bg-gray-50'
-                  }`}
-                >
-                  <span className="mr-2">{section.icon}</span>
-                  {section.label}
-                </button>
-              ))}
-            </nav>
+  return (
+    <div className="flex bg-white rounded-lg shadow-lg">
+      <div className="w-64 border-r border-gray-200 p-6">
+        <nav className="space-y-2">
+          {sections.map(section => (
+            <button
+              key={section.id}
+              onClick={() => setActiveSection(section.id)}
+              className={`flex items-center w-full p-3 rounded-lg ${activeSection === section.id ? 'bg-blue-50 text-blue-600' : 'hover:bg-gray-50'}`}
+            >
+              <span className="mr-2">{section.icon}</span>
+              {section.label}
+            </button>
+          ))}
+        </nav>
+      </div>
+      <div className="flex-1 p-6">
+        {/* Personal Info Section */}
+        {activeSection === 'personalInfo' && (
+          <div className="space-y-4">
+            <h2 className="text-xl font-bold">Personal Information</h2>
+            {Object.entries(data.personalInfo).map(([field, value]) => (
+              <input
+                key={field}
+                type="text"
+                placeholder={field.charAt(0).toUpperCase() + field.slice(1).replace(/([A-Z])/g, ' $1')}
+                value={value}
+                onChange={(e) => handlePersonalInfoChange(field, e.target.value)}
+                className="w-full p-2 border rounded"
+              />
+            ))}
           </div>
+        )}
 
-          <div className="flex-1 p-6">
-            {activeSection === 'personalInfo' && (
-              <div className="space-y-4">
-                <h2 className="text-xl font-bold">Personal Information</h2>
-                {Object.entries(data.personalInfo).map(([field, value]) => (
-                  <input
-                    key={field}
-                    type="text"
-                    placeholder={field.charAt(0).toUpperCase() + field.slice(1).replace(/([A-Z])/g, ' $1')}
-                    value={value}
-                    onChange={(e) => handlePersonalInfoChange(field, e.target.value)}
-                    className="w-full p-2 border rounded"
-                  />
-                ))}
-              </div>
-            )}
-
-            {(activeSection === 'professionalExperience' || activeSection === 'volunteerExperience') && (
-              <div className="space-y-4">
-                <h2 className="text-xl font-bold">{sections.find(s => s.id === activeSection).label}</h2>
-                {data[activeSection].map((exp, index) => (
-                  <div key={index} className="p-4 border rounded">
+        {/* Experience and Volunteer Section */}
+        {(activeSection === 'professionalExperience' || activeSection === 'volunteerExperience') && (
+          <div className="space-y-4">
+            <h2 className="text-xl font-bold">{sections.find(s => s.id === activeSection).label}</h2>
+            {data[activeSection].map((exp, index) => (
+              <Card key={index} className="p-4">
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
                     <input
                       type="text"
                       placeholder="Company/Organization"
                       value={exp.name}
                       onChange={(e) => handleExperienceChange(activeSection, index, 'name', e.target.value)}
-                      className="w-full p-2 border rounded mb-2"
+                      className="w-full p-2 border rounded"
                     />
                     <input
                       type="text"
                       placeholder="Role"
                       value={exp.role}
                       onChange={(e) => handleExperienceChange(activeSection, index, 'role', e.target.value)}
-                      className="w-full p-2 border rounded mb-2"
+                      className="w-full p-2 border rounded"
                     />
                     <input
                       type="text"
                       placeholder="Start Year"
                       value={exp.yearStarted}
                       onChange={(e) => handleExperienceChange(activeSection, index, 'yearStarted', e.target.value)}
-                      className="w-full p-2 border rounded mb-2"
+                      className="w-full p-2 border rounded"
                     />
                     <input
                       type="text"
@@ -203,141 +130,218 @@
                       onChange={(e) => handleExperienceChange(activeSection, index, 'yearEnded', e.target.value)}
                       className="w-full p-2 border rounded"
                     />
-                    <textarea
-                      placeholder="Description"
-                      value={exp.description}
-                      onChange={(e) => handleExperienceChange(activeSection, index, 'description', e.target.value)}
-                      className="w-full p-2 border rounded h-24"
-                    />
                   </div>
-                ))}
-                <button
-                  onClick={() => addExperience(activeSection)}
-                  className="w-full p-2 border-2 border-dashed rounded hover:border-blue-500"
-                >
-                  + Add Entry
-                </button>
-              </div>
-            )}
-
-            {/* Extracurriculars Section */}
-            {activeSection === 'extracurriculars' && (
-              <div className="space-y-4">
-                <h2 className="text-xl font-bold">Extracurriculars</h2>
-                {data.extracurriculars.map((activity, index) => (
-                  <div key={index} className="p-4 border rounded">
-                    <input
-                      type="text"
-                      placeholder="Activity"
-                      value={activity.name}
-                      onChange={(e) => handleExperienceChange('extracurriculars', index, 'name', e.target.value)}
-                      className="w-full p-2 border rounded"
-                    />
-                    <textarea
-                      placeholder="Description"
-                      value={activity.description}
-                      onChange={(e) => handleExperienceChange('extracurriculars', index, 'description', e.target.value)}
-                      className="w-full p-2 border rounded h-24"
-                    />
-                  </div>
-                ))}
-                <button
-                  onClick={addExtracurricular}
-                  className="w-full p-2 border-2 border-dashed rounded hover:border-blue-500"
-                >
-                  + Add Activity
-                </button>
-              </div>
-            )}
-
-            {/* Coursework Section */}
-            {activeSection === 'relevantCoursework' && (
-              <div className="space-y-4">
-                <h2 className="text-xl font-bold">Relevant Coursework</h2>
-                {data.relevantCoursework.map((course, index) => (
-                  <div key={index} className="p-4 border rounded">
-                    <input
-                      type="text"
-                      placeholder="Course"
-                      value={course.name}
-                      onChange={(e) => handleExperienceChange('relevantCoursework', index, 'name', e.target.value)}
-                      className="w-full p-2 border rounded"
-                    />
-                    <textarea
-                      placeholder="Description"
-                      value={course.description}
-                      onChange={(e) => handleExperienceChange('relevantCoursework', index, 'description', e.target.value)}
-                      className="w-full p-2 border rounded h-24"
-                    />
-                  </div>
-                ))}
-                <button
-                  onClick={addCoursework}
-                  className="w-full p-2 border-2 border-dashed rounded hover:border-blue-500"
-                >
-                  + Add Course
-                </button>
-              </div>
-            )}
-
-            {/* Skills Section */}
-            {activeSection === 'skills' && (
-              <div className="space-y-4">
-                <h2 className="text-xl font-bold">Skills</h2>
-                <div className="space-y-2">
-                  {data.skills.map((skillSection, index) => (
-                    <div key={index} className="p-2 bg-gray-50 rounded">
-                      <h3 className="font-bold">{skillSection.section}</h3>
-                      {skillSection.skills.map((skill, skillIndex) => (
-                        <span key={skillIndex} className="inline-block bg-blue-100 text-blue-800 px-3 py-1 rounded m-1">
-                          {skill}
-                        </span>
-                      ))}
-                    </div>
-                  ))}
-                  <input
-                    type="text"
-                    placeholder="Add new skill"
-                    onKeyPress={(e) => {
-                      if (e.key === 'Enter') {
-                        addSkill('skills', e.target.value);
-                        e.target.value = '';
-                      }
-                    }}
-                    className="w-full p-2 border rounded"
+                  <textarea
+                    placeholder="Description"
+                    value={exp.description}
+                    onChange={(e) => handleExperienceChange(activeSection, index, 'description', e.target.value)}
+                    className="w-full p-2 border rounded h-24"
                   />
-                  <button
-                    onClick={addSkillSection}
-                    className="w-full p-2 border-2 border-dashed rounded hover:border-blue-500 mt-4"
-                  >
-                    + Add Skill Section
-                  </button>
+                </CardContent>
+              </Card>
+            ))}
+            <button onClick={() => addExperience(activeSection)} className="w-full p-2 border-2 border-dashed rounded hover:border-blue-500">
+              + Add Entry
+            </button>
+          </div>
+        )}
+
+        {/* Extracurriculars and Coursework Section */}
+        {(activeSection === 'extracurriculars' || activeSection === 'relevantCoursework') && (
+          <div className="space-y-4">
+            <h2 className="text-xl font-bold">{sections.find(s => s.id === activeSection).label}</h2>
+            {data[activeSection].map((item, index) => (
+              <input
+                key={index}
+                type="text"
+                placeholder="Add Activity or Coursework"
+                value={item}
+                onChange={(e) => handleExperienceChange(activeSection, index, '', e.target.value)}
+                className="w-full p-2 border rounded"
+              />
+            ))}
+            <button onClick={() => addExperience(activeSection)} className="w-full p-2 border-2 border-dashed rounded hover:border-blue-500">
+              + Add Entry
+            </button>
+          </div>
+        )}
+
+        {/* Skills Section */}
+        {activeSection === 'skills' && (
+          <div className="space-y-4">
+            <h2 className="text-xl font-bold">Skills</h2>
+            <div className="space-y-2">
+              {data.skills.map((skill, index) => (
+                <span key={index} className="inline-block bg-blue-100 text-blue-800 px-3 py-1 rounded m-1">
+                  {skill}
+                </span>
+              ))}
+              <input
+                type="text"
+                placeholder="Add new skill"
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter') {
+                    addSkill('skills', e.target.value);
+                    e.target.value = '';
+                  }
+                }}
+                className="w-full p-2 border rounded"
+              />
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+const ResumePreview = ({ data }) => {
+  return (
+    <Card className="max-w-4xl mx-auto p-8">
+      <CardContent>
+        <div className="mb-8 text-center">
+          <h1 className="text-3xl font-bold">{data.personalInfo.name}</h1>
+          <p className="text-gray-600">{data.personalInfo.email} | {data.personalInfo.phoneNumber}</p>
+          <p className="text-gray-600">{data.personalInfo.school} | {data.personalInfo.schoolCity}, {data.personalInfo.schoolState}</p>
+          <p className="text-gray-600">Grade {data.personalInfo.grade} | GPA: {data.personalInfo.unweightedGPA}</p>
+        </div>
+
+        {data.professionalExperience.length > 0 && (
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold mb-4">Professional Experience</h2>
+            {data.professionalExperience.map((exp, index) => (
+              <div key={index} className="mb-4">
+                <div className="flex justify-between">
+                  <h3 className="font-bold">{exp.name}</h3>
+                  <p className="text-gray-600">{exp.yearStarted} - {exp.yearEnded}</p>
                 </div>
+                <p className="text-gray-800">{exp.role}</p>
+                <p className="text-gray-600">{exp.description}</p>
               </div>
-            )}
+            ))}
+          </div>
+        )}
+
+        {data.volunteerExperience.length > 0 && (
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold mb-4">Volunteer Experience</h2>
+            {data.volunteerExperience.map((vol, index) => (
+              <div key={index} className="mb-4">
+                <div className="flex justify-between">
+                  <h3 className="font-bold">{vol.name}</h3>
+                  <p className="text-gray-600">{vol.yearStarted} - {vol.yearEnded}</p>
+                </div>
+                <p className="text-gray-800">{vol.role}</p>
+                <p className="text-gray-600">{vol.description}</p>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {data.extracurriculars.length > 0 && (
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold mb-4">Extracurriculars</h2>
+            {data.extracurriculars.map((activity, index) => (
+              <div key={index} className="mb-4">
+                <p className="text-gray-800">{activity}</p>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {data.relevantCoursework.length > 0 && (
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold mb-4">Relevant Coursework</h2>
+            {data.relevantCoursework.map((course, index) => (
+              <div key={index} className="mb-4">
+                <p className="text-gray-800">{course}</p>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {data.skills.length > 0 && (
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold mb-4">Skills</h2>
+            <div className="flex flex-wrap gap-2">
+              {data.skills.map((skill, index) => (
+                <span key={index} className="bg-blue-100 text-blue-800 px-3 py-1 rounded m-1">
+                  {skill}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+};
+
+const ResumeTemplateSelection = ({ setCurrentView }) => {
+  const templates = [
+    { id: 'modern', name: 'Modern', icon: '🎨' },
+    { id: 'classic', name: 'Classic', icon: '📄' },
+    { id: 'minimal', name: 'Minimal', icon: '✨' }
+  ];
+
+  return (
+    <div className="max-w-4xl mx-auto p-6">
+      <h1 className="text-3xl font-bold mb-8">Choose Your Template</h1>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {templates.map((template) => (
+          <Card key={template.id} className="p-6 hover:border-blue-500 cursor-pointer transition-colors" onClick={() => setCurrentView('preview')}>
+            <CardContent>
+              <div className="text-4xl mb-4">{template.icon}</div>
+              <h3 className="text-xl font-bold mb-2">{template.name}</h3>
+              <p className="text-gray-600">Professional and clean design</p>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default function ResumeBuilder() {
+  const [currentView, setCurrentView] = useState('organizer');
+  const [data, setData] = useState(defaultData);
+
+  const renderComponent = () => {
+    switch (currentView) {
+      case 'organizer':
+        return <ResumeOrganizer data={data} setData={setData} setCurrentView={setCurrentView} />;
+      case 'preview':
+        return <ResumePreview data={data} setCurrentView={setCurrentView} />;
+      case 'template':
+        return <ResumeTemplateSelection setCurrentView={setCurrentView} />;
+      default:
+        return <ResumeOrganizer data={data} setData={setData} setCurrentView={setCurrentView} />;
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-100">
+      <nav className="bg-white shadow-sm mb-8">
+        <div className="max-w-7xl mx-auto px-4 py-4">
+          <div className="flex justify-between items-center">
+            <h1 className="text-xl font-bold">📝 Resume Builder</h1>
+            <div className="flex gap-4">
+              <button onClick={() => setCurrentView('organizer')} className={`px-4 py-2 rounded ${currentView === 'organizer' ? 'bg-blue-100 text-blue-600' : ''}`}>
+                ✏️ Editor
+              </button>
+              <button onClick={() => setCurrentView('preview')} className={`px-4 py-2 rounded ${currentView === 'preview' ? 'bg-blue-100 text-blue-600' : ''}`}>
+                👀 Preview
+              </button>
+              <button onClick={() => setCurrentView('template')} className={`px-4 py-2 rounded ${currentView === 'template' ? 'bg-blue-100 text-blue-600' : ''}`}>
+                🎨 Templates
+              </button>
+            </div>
           </div>
         </div>
-      );
-    };
-
-    const ResumeBuilder = () => {
-      const [currentView, setCurrentView] = React.useState('organizer');
-      const [data, setData] = React.useState(defaultData);
-
-      const renderComponent = () => {
-        return <ResumeOrganizer data={data} setData={setData} setCurrentView={setCurrentView} />;
-      };
-
-      return (
-        <div className="min-h-screen bg-gray-100">
-          <main className="max-w-7xl mx-auto px-4 pb-8">
-            {renderComponent()}
-          </main>
-        </div>
-      );
-    };
-
-    ReactDOM.render(<ResumeBuilder />, document.getElementById('root'));
-  </script>
-</body>
-</html>
+      </nav>
+      <main className="max-w-7xl mx-auto px-4 pb-8">
+        {renderComponent()}
+      </main>
+    </div>
+  );
+}
