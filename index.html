@@ -41,8 +41,6 @@
 
   <!-- React App -->
   <script type="text/babel">
-    // Your React Code (from your original question)
-
     const defaultData = {
       personalInfo: {
         name: "",
@@ -103,6 +101,20 @@
             yearEnded: '',
             description: ''
           }]
+        }));
+      };
+
+      const addExtracurricular = () => {
+        setData(prev => ({
+          ...prev,
+          extracurriculars: [...prev.extracurriculars, { name: '', description: '' }]
+        }));
+      };
+
+      const addCoursework = () => {
+        setData(prev => ({
+          ...prev,
+          relevantCoursework: [...prev.relevantCoursework, { name: '', description: '' }]
         }));
       };
 
@@ -208,6 +220,67 @@
               </div>
             )}
 
+            {/* Extracurriculars Section */}
+            {activeSection === 'extracurriculars' && (
+              <div className="space-y-4">
+                <h2 className="text-xl font-bold">Extracurriculars</h2>
+                {data.extracurriculars.map((activity, index) => (
+                  <div key={index} className="p-4 border rounded">
+                    <input
+                      type="text"
+                      placeholder="Activity"
+                      value={activity.name}
+                      onChange={(e) => handleExperienceChange('extracurriculars', index, 'name', e.target.value)}
+                      className="w-full p-2 border rounded"
+                    />
+                    <textarea
+                      placeholder="Description"
+                      value={activity.description}
+                      onChange={(e) => handleExperienceChange('extracurriculars', index, 'description', e.target.value)}
+                      className="w-full p-2 border rounded h-24"
+                    />
+                  </div>
+                ))}
+                <button
+                  onClick={addExtracurricular}
+                  className="w-full p-2 border-2 border-dashed rounded hover:border-blue-500"
+                >
+                  + Add Activity
+                </button>
+              </div>
+            )}
+
+            {/* Coursework Section */}
+            {activeSection === 'relevantCoursework' && (
+              <div className="space-y-4">
+                <h2 className="text-xl font-bold">Relevant Coursework</h2>
+                {data.relevantCoursework.map((course, index) => (
+                  <div key={index} className="p-4 border rounded">
+                    <input
+                      type="text"
+                      placeholder="Course"
+                      value={course.name}
+                      onChange={(e) => handleExperienceChange('relevantCoursework', index, 'name', e.target.value)}
+                      className="w-full p-2 border rounded"
+                    />
+                    <textarea
+                      placeholder="Description"
+                      value={course.description}
+                      onChange={(e) => handleExperienceChange('relevantCoursework', index, 'description', e.target.value)}
+                      className="w-full p-2 border rounded h-24"
+                    />
+                  </div>
+                ))}
+                <button
+                  onClick={addCoursework}
+                  className="w-full p-2 border-2 border-dashed rounded hover:border-blue-500"
+                >
+                  + Add Course
+                </button>
+              </div>
+            )}
+
+            {/* Skills Section */}
             {activeSection === 'skills' && (
               <div className="space-y-4">
                 <h2 className="text-xl font-bold">Skills</h2>
